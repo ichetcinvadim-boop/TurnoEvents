@@ -1,0 +1,74 @@
+# TurnoEvents 1.0.0
+
+Серверные ивенты для Purpur/Paper 1.21.10 без боссов и арен. Игроки участвуют через `/events`, набирают очки, видят лидеров в GUI и TAB-scoreboard, а тройка победителей получает валюту Vault и настроенные предметы ExecutableItems.
+
+## Встроенные ивенты
+
+- `miner` — добыча руды с разным весом ресурсов;
+- `builder` — установка уникальных блоков;
+- `hunter` — убийство существ, без мобов из спавнеров и яиц;
+- `fisher` — рыболовный турнир;
+- `marathon` — пройденное расстояние;
+- `quiz` — вопросы в чате, очки получает первый верный ответ.
+
+Ивенты запускаются автоматически по расписанию или вручную. Активный ивент, очки и ожидающие награды переживают перезапуск сервера. Офлайн-команды работают по UUID или последнему известному нику.
+
+## Установка
+
+1. Нужны Java 21, Purpur/Paper 1.21.10, Vault и любой совместимый плагин экономики.
+2. Положите `TurnoEvents-1.0.0.jar` в `plugins/` и перезапустите сервер.
+3. Для интерфейса справа установите PlaceholderAPI и TAB. ExecutableItems нужен только для особых предметов.
+4. Один раз запустите сервер. Настройки появятся в `plugins/TurnoEvents/`.
+5. Блок из `tab-scoreboard.yml` объедините с уже существующим разделом `scoreboard:` файла `plugins/TAB/config.yml`. Не создавайте второй раздел `scoreboard:`.
+6. Выполните `/papi reload`, затем `/tab reload`.
+
+## Команды игроков
+
+- `/events` — интерфейс;
+- `/events join` и `/events leave` — войти или выйти;
+- `/events status` — состояние и личный результат;
+- `/events top` — текущие лидеры.
+
+## Основные админ-команды
+
+- `/te admin` — панель управления;
+- `/te templates` — ID всех шаблонов;
+- `/te start <id> [секунды]` — объявить ивент;
+- `/te startnow <id>` — начать немедленно;
+- `/te pause`, `/te resume`, `/te extend <сек>`, `/te settime <сек>`;
+- `/te finish` — закончить и выдать награды;
+- `/te stop` — отменить без наград;
+- `/te addpoints <игрок|UUID> <число>`;
+- `/te setpoints <игрок|UUID> <число>`;
+- `/te join <игрок|UUID>` и `/te leave <игрок|UUID>`;
+- `/te reward <игрок|UUID> <деньги> [executable-item|-]`;
+- `/te create <id> <тип> <минуты>` и `/te delete <id>`;
+- `/te schedule <on|off|status>`;
+- `/te reload`, `/te validate`.
+
+## LuckPerms
+
+Игрокам право `turnoevents.use` доступно по умолчанию. Полный доступ администратора:
+
+```text
+/lp group admin permission set turnoevents.admin true
+```
+
+Можно выдать отдельные права: `turnoevents.admin.start`, `.stop`, `.time`, `.points`, `.players`, `.reward`, `.templates`, `.schedule`, `.reload`.
+
+## PlaceholderAPI / TAB
+
+Основные плейсхолдеры: `%turnoevents_active%`, `%turnoevents_joined%`, `%turnoevents_name%`, `%turnoevents_time%`, `%turnoevents_your_points%`, `%turnoevents_your_place%`, `%turnoevents_goal%`, `%turnoevents_participants%`, `%turnoevents_leader_1%`…`%turnoevents_leader_3_points%`, `%turnoevents_next_event%`.
+
+TurnoEvents не перехватывает scoreboard-пакеты. TAB показывает ивент, а внешний scoreboard CombatLogX может временно заменить его во время боя; после боя TAB снова покажет подходящий scoreboard.
+
+## Защита и сохранность
+
+- поставленная игроком руда не засчитывается при повторном разрушении;
+- один и тот же блок нельзя бесконечно переставлять в строительном ивенте;
+- мобы из спавнеров и яиц не засчитываются;
+- телепортации и скачки больше 20 блоков не считаются марафоном;
+- награда каждого запуска записывается в ledger и не начисляется повторно;
+- деньги и EI-предметы ждут офлайн-игрока и выдаются при входе;
+- данные записываются атомарно и автоматически каждые 30 секунд.
+
