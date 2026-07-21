@@ -12,7 +12,20 @@ jobs:
           distribution: temurin
           java-version: '21'
           cache: maven
-      - run: mvn --batch-mode package
+      - name: Compile against real Paper API
+        run: mvn --batch-mode test-compile dependency:build-classpath -Dmdep.outputFile=target/classpath.txt
+      - name: Run logic tests
+        run: |
+          CP="$(cat target/classpath.txt)"
+          java -cp "target/test-classes:target/classes:$CP" pro.turnoworld.events.TestRunner
+      - name: Build plugin
+        run: mvn --batch-mode package -DskipTests
+      - name: Verify runtime ABI
+        run: |
+          CP="$(cat target/classpath.txt)"
+          mkdir -p target/abi
+          javac -cp "$CP" -d target/abi build-support/AbiVerifier.java
+          java -cp "target/abi:$CP" AbiVerifier target/TurnoEvents-1.0.1.jar $(tr ':' ' ' < target/classpath.txt)
       - uses: actions/upload-artifact@v4
         with:
           name: TurnoEvents

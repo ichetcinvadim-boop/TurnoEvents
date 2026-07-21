@@ -42,12 +42,13 @@ public final class TurnoEvents extends JavaPlugin {
         else errors.forEach(error -> getLogger().warning("Проверка: " + error));
     }
 
-    @Override public void onDisable() { saveAll(); }
+    @Override public void onDisable() { if (store != null) saveAll(); }
 
     public void reloadEverything() {
         reloadConfig(); catalog.reload(); rewards.hookEconomy();
     }
     public void saveAll() {
+        if (store == null) return;
         try { store.saveAll(); store.saveActive(manager == null ? null : manager.session()); }
         catch (IOException e) { getLogger().warning("Ошибка автосохранения: " + e.getMessage()); }
     }
