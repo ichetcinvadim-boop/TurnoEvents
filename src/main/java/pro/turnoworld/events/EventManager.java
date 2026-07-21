@@ -177,6 +177,22 @@ public final class EventManager {
     public synchronized boolean setPoints(UUID uuid, long points, String name) {
         if (!active()) return false; store.getOrCreate(uuid, name); session.setPoints(uuid, points); saveActive(); return true;
     }
+    public synchronized boolean assignPlace(UUID uuid, int place) {
+        if (!active() || !session.assignPlace(uuid, place, this::name)) return false;
+        saveActive(); return true;
+    }
+    public synchronized boolean disqualify(UUID uuid) {
+        if (!active() || !session.disqualify(uuid)) return false;
+        saveActive(); return true;
+    }
+    public synchronized boolean reinstate(UUID uuid) {
+        if (!active() || !session.reinstate(uuid)) return false;
+        saveActive(); return true;
+    }
+    public synchronized boolean resetPlacements() {
+        if (!active() || !session.resetPlacements()) return false;
+        saveActive(); return true;
+    }
 
     public void markArtificial(UUID entity) { artificialMobs.add(entity); }
     public void placed(Location location) { if (active()) placedLocations.add(locationKey(location)); }
