@@ -25,7 +25,7 @@ jobs:
           CP="$(cat target/classpath.txt)"
           mkdir -p target/abi
           javac -cp "$CP" -d target/abi build-support/AbiVerifier.java
-          java -cp "target/abi:$CP" AbiVerifier target/TurnoEvents-1.0.1.jar $(tr ':' ' ' < target/classpath.txt)
+          java -cp "target/abi:$CP" AbiVerifier target/TurnoEvents-1.1.0.jar $(tr ':' ' ' < target/classpath.txt)
       - uses: actions/upload-artifact@v4
         with:
           name: TurnoEvents

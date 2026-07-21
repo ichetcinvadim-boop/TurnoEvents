@@ -74,6 +74,33 @@ public final class TestRunner {
         UUID removed = ids.get(40); check(session.leave(removed), "выход"); check(!session.joined(removed), "исключён из участников");
         check(session.place(removed, Object::toString) == 0, "нет места после выхода"); check(!session.leave(removed), "повторный выход");
         session.state(EventState.FINISHED); check(session.addPoints(ids.get(1), 100) == session.points(ids.get(1)), "после финиша очки закрыты");
+
+        EventSession managed = new EventSession("run-managed", template("builder", EventType.BUILDER), EventState.RUNNING, now, now + 120_000);
+        List<UUID> managedIds = new ArrayList<>();
+        for (int i = 0; i < 60; i++) {
+            UUID id = new UUID(50, i + 1); managedIds.add(id); managed.setPoints(id, (i + 1) * 100L);
+        }
+        UUID lowest = managedIds.get(0), highest = managedIds.get(59);
+        check(managed.place(lowest, Object::toString) == 60, "последнее место по очкам");
+        check(managed.assignPlace(lowest, 1, Object::toString), "ручное первое место");
+        check(managed.place(lowest, Object::toString) == 1, "ручной порядок применяется");
+        check(managed.manualOrder().size() == 60, "ручной порядок фиксирует таблицу");
+        check(!managed.assignPlace(lowest, 61, Object::toString), "место за пределами таблицы отклонено");
+        check(managed.disqualify(highest), "аннулирование результата");
+        check(managed.disqualified(highest), "флаг аннулирования");
+        check(managed.place(highest, Object::toString) == 0, "аннулированный отсутствует в топе");
+        check(managed.standings(Object::toString).size() == 59, "аннулированный исключён из итогов");
+        check(!managed.disqualify(highest), "повторное аннулирование отклонено");
+        check(managed.reinstate(highest), "восстановление участника");
+        check(!managed.disqualified(highest), "аннулирование снято");
+        check(managed.standings(Object::toString).size() == 60, "восстановленный снова в таблице");
+        check(!managed.reinstate(highest), "повторное восстановление отклонено");
+        check(managed.disqualify(managedIds.get(20)), "второе аннулирование");
+        check(managed.resetPlacements(), "общий сброс ручных правок");
+        check(managed.manualOrder().isEmpty(), "ручной порядок очищен");
+        check(managed.disqualifiedParticipants().isEmpty(), "все аннулирования сняты");
+        check(managed.place(highest, Object::toString) == 1, "после сброса снова сортировка по очкам");
+        check(!managed.resetPlacements(), "пустой повторный сброс");
     }
 
     private static void persistenceTests() throws Exception {
@@ -102,11 +129,21 @@ public final class TestRunner {
         List<PlayerEventData> top = second.lifetimeTop(10); check(top.size() == 10, "топ-10");
         for (int i = 1; i < top.size(); i++) check(top.get(i - 1).lifetimePoints >= top.get(i).lifetimePoints, "топ сортировка " + i);
 
-        EventTemplate template = template("persist", EventType.BUILDER); long now = System.currentTimeMillis();
+        EventTemplate template = template("miner", EventType.MINER); long now = System.currentTimeMillis();
         EventSession active = new EventSession("persist-run", template, EventState.RUNNING, now, now + 60_000);
         for (int i = 0; i < 35; i++) active.setPoints(new UUID(10, i + 1), i * 3L);
+        UUID manuallyFirst = new UUID(10, 1), excluded = new UUID(10, 35);
+        check(active.assignPlace(manuallyFirst, 1, Object::toString), "ручное место перед сохранением");
+        check(active.disqualify(excluded), "аннулирование перед сохранением");
         first.saveActive(active);
         check(Files.isRegularFile(temp.resolve("active-event.properties")), "активный ивент записан");
+        Path resources = (Files.isDirectory(Path.of("TurnoEvents", "src")) ? Path.of("TurnoEvents") : Path.of(".")).resolve("src/main/resources/events.yml");
+        EventSession restoredSession = second.restoreActive(new EventCatalog(resources.toFile()));
+        check(restoredSession != null, "активный ивент восстановлен");
+        check(restoredSession.manualOrder().size() == 34, "ручной порядок восстановлен");
+        check(restoredSession.disqualified(excluded), "аннулирование восстановлено");
+        check(restoredSession.place(manuallyFirst, Object::toString) == 1, "ручное место пережило перезапуск");
+        check(restoredSession.place(excluded, Object::toString) == 0, "аннулированный не вернулся в топ");
         first.clearActive(); check(!Files.exists(temp.resolve("active-event.properties")), "активный ивент очищен");
     }
 
@@ -119,7 +156,8 @@ public final class TestRunner {
         for (String id : List.of("miner", "builder", "hunter", "fisher", "marathon", "quiz")) check(events.contains("  " + id + ":"), "ресурс шаблона " + id);
         for (EventType type : EventType.values()) check(events.contains("type: " + type.name()), "ресурс типа " + type);
         for (String key : List.of("Vault", "PlaceholderAPI", "ExecutableItems", "TAB", "floodgate")) check(plugin.contains(key), "интеграция " + key);
-        for (String permission : List.of("admin.start", "admin.stop", "admin.time", "admin.points", "admin.players", "admin.reward", "admin.templates", "admin.schedule", "admin.reload")) check(plugin.contains("turnoevents." + permission), "право " + permission);
+        for (String permission : List.of("admin.start", "admin.stop", "admin.time", "admin.points", "admin.placements", "admin.players", "admin.reward", "admin.templates", "admin.schedule", "admin.reload")) check(plugin.contains("turnoevents." + permission), "право " + permission);
+        for (String command : List.of("place", "disqualify", "reinstate", "placements")) check(Files.readString(root.resolve("src/main/java/pro/turnoworld/events/EventCommand.java")).contains("\"" + command + "\""), "команда мест " + command);
         for (String placeholder : List.of("active", "joined", "name", "time", "your_points", "your_place", "goal", "leader_1", "leader_2", "leader_3", "participants")) check(tab.contains("%turnoevents_" + placeholder + "%"), "TAB placeholder " + placeholder);
         check(tab.contains("use-numbers: false"), "TAB без красных чисел"); check(tab.contains("static-number: 0"), "TAB static-number");
         check(config.contains("auto-join: false"), "явное участие"); check(config.contains("ignore-spawner-and-egg-mobs: true"), "защита мобов");

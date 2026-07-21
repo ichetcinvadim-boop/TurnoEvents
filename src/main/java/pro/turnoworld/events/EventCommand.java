@@ -66,6 +66,7 @@ public final class EventCommand implements CommandExecutor, TabCompleter {
             sender.sendMessage(plugin.color(plugin.prefix() + (changed ? "&aВремя изменено." : "&cНет активного ивента."))); return true;
         }
         if (sub.equals("addpoints") || sub.equals("setpoints")) return points(sender, args, sub.equals("addpoints"));
+        if (sub.equals("place") || sub.equals("disqualify") || sub.equals("reinstate") || sub.equals("placements")) return placements(sender, args, sub);
         if (sub.equals("join") || sub.equals("leave")) return adminMembership(sender, args, sub.equals("join"));
         if (sub.equals("reward")) return reward(sender, args);
         if (sub.equals("create")) return create(sender, args);
@@ -126,6 +127,33 @@ public final class EventCommand implements CommandExecutor, TabCompleter {
         boolean ok = join ? plugin.manager().join(data.uuid, data.lastName) : plugin.manager().leave(data.uuid);
         sender.sendMessage(plugin.color(plugin.prefix() + (ok ? "&aСостав участников изменён." : "&cДействие невозможно."))); return true;
     }
+    private boolean placements(CommandSender sender, String[] args, String sub) {
+        if (!permission(sender, "turnoevents.admin.placements")) return true;
+        if (sub.equals("placements")) {
+            if (args.length < 2 || !args[1].equalsIgnoreCase("reset")) { sender.sendMessage("/te placements reset"); return true; }
+            boolean changed = plugin.manager().resetPlacements();
+            sender.sendMessage(plugin.color(plugin.prefix() + (changed ? "&aРучные места и аннулирования сброшены." : "&eИзменений нет или итоги уже закрыты.")));
+            return true;
+        }
+        if (args.length < 2 || (sub.equals("place") && args.length < 3)) {
+            sender.sendMessage(sub.equals("place") ? "/te place <игрок|UUID> <место>" : "/te " + sub + " <игрок|UUID>"); return true;
+        }
+        PlayerEventData data = plugin.store().find(args[1]);
+        if (data == null) { error(sender, "Игрок не найден."); return true; }
+        boolean changed;
+        if (sub.equals("place")) {
+            long place = nonNegative(args[2], -1);
+            changed = place > 0 && place <= Integer.MAX_VALUE && plugin.manager().assignPlace(data.uuid, (int) place);
+            sender.sendMessage(plugin.color(plugin.prefix() + (changed ? "&aИгроку назначено место #" + place + "." : "&cМесто неверно, игрок не участвует или итоги закрыты.")));
+        } else if (sub.equals("disqualify")) {
+            changed = plugin.manager().disqualify(data.uuid);
+            sender.sendMessage(plugin.color(plugin.prefix() + (changed ? "&cМесто игрока аннулировано; награда не будет выдана." : "&eИгрок уже аннулирован, не участвует или итоги закрыты.")));
+        } else {
+            changed = plugin.manager().reinstate(data.uuid);
+            sender.sendMessage(plugin.color(plugin.prefix() + (changed ? "&aИгрок восстановлен в таблице." : "&eИгрок не был аннулирован или итоги закрыты.")));
+        }
+        return true;
+    }
     private boolean reward(CommandSender sender, String[] args) {
         if (!permission(sender, "turnoevents.admin.reward")) return true;
         if (args.length < 3) { sender.sendMessage("/te reward <игрок|UUID> <деньги> [executable-item|-]"); return true; }
@@ -160,6 +188,7 @@ public final class EventCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage(plugin.color("&e/te admin &7— админ-меню; &e/te templates"));
         sender.sendMessage(plugin.color("&e/te start <id> [сек] &7| &e/te startnow <id> &7| &e/te finish &7| &e/te stop"));
         sender.sendMessage(plugin.color("&e/te pause|resume|extend|settime &7| &e/te addpoints|setpoints <игрок> <число>"));
+        sender.sendMessage(plugin.color("&e/te place <игрок> <место> &7| &e/te disqualify|reinstate <игрок> &7| &e/te placements reset"));
         sender.sendMessage(plugin.color("&e/te join|leave <игрок> &7| &e/te reward <игрок> <деньги> [item]"));
         sender.sendMessage(plugin.color("&e/te create|delete &7| &e/te schedule &7| &e/te reload|validate"));
     }
@@ -170,10 +199,11 @@ public final class EventCommand implements CommandExecutor, TabCompleter {
 
     @Override public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (command.getName().equalsIgnoreCase("events")) return filter(List.of("menu", "join", "leave", "status", "top"), args[args.length - 1]);
-        if (args.length == 1) return filter(List.of("help", "menu", "admin", "templates", "start", "startnow", "finish", "stop", "pause", "resume", "extend", "settime", "addpoints", "setpoints", "join", "leave", "reward", "create", "delete", "schedule", "reload", "validate"), args[0]);
+        if (args.length == 1) return filter(List.of("help", "menu", "admin", "templates", "start", "startnow", "finish", "stop", "pause", "resume", "extend", "settime", "addpoints", "setpoints", "place", "disqualify", "reinstate", "placements", "join", "leave", "reward", "create", "delete", "schedule", "reload", "validate"), args[0]);
         String sub = args[0].toLowerCase(Locale.ROOT);
         if (args.length == 2 && (sub.equals("start") || sub.equals("startnow") || sub.equals("delete"))) return filter(plugin.catalog().all().stream().map(EventTemplate::id).toList(), args[1]);
-        if (args.length == 2 && List.of("addpoints", "setpoints", "join", "leave", "reward").contains(sub)) return filter(Arrays.stream(Bukkit.getOfflinePlayers()).map(p -> p.getName() == null ? p.getUniqueId().toString() : p.getName()).toList(), args[1]);
+        if (args.length == 2 && List.of("addpoints", "setpoints", "place", "disqualify", "reinstate", "join", "leave", "reward").contains(sub)) return filter(Arrays.stream(Bukkit.getOfflinePlayers()).map(p -> p.getName() == null ? p.getUniqueId().toString() : p.getName()).toList(), args[1]);
+        if (args.length == 2 && sub.equals("placements")) return filter(List.of("reset"), args[1]);
         if (args.length == 2 && sub.equals("schedule")) return filter(List.of("on", "off", "status"), args[1]);
         if (args.length == 3 && sub.equals("create")) return filter(Arrays.stream(EventType.values()).map(Enum::name).toList(), args[2]);
         return List.of();

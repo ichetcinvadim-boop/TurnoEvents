@@ -1,5 +1,5 @@
 name: TurnoEvents
-version: 1.0.1
+version: 1.1.0
 main: pro.turnoworld.events.TurnoEvents
 api-version: '1.21'
 author: TurnoWorld
@@ -23,6 +23,7 @@ permissions:
       turnoevents.admin.stop: true
       turnoevents.admin.time: true
       turnoevents.admin.points: true
+      turnoevents.admin.placements: true
       turnoevents.admin.players: true
       turnoevents.admin.reward: true
       turnoevents.admin.templates: true
@@ -32,6 +33,7 @@ permissions:
   turnoevents.admin.stop: {default: op}
   turnoevents.admin.time: {default: op}
   turnoevents.admin.points: {default: op}
+  turnoevents.admin.placements: {default: op}
   turnoevents.admin.players: {default: op}
   turnoevents.admin.reward: {default: op}
   turnoevents.admin.templates: {default: op}

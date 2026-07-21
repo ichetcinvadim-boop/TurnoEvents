@@ -1,4 +1,4 @@
-# TurnoEvents 1.0.1
+# TurnoEvents 1.1.0
 
 Серверные ивенты для Purpur/Paper 1.21.10 без боссов и арен. Игроки участвуют через `/events`, набирают очки, видят лидеров в GUI и TAB-scoreboard, а тройка победителей получает валюту Vault и настроенные предметы ExecutableItems.
 
@@ -16,7 +16,7 @@
 ## Установка
 
 1. Нужны Java 21, Purpur/Paper 1.21.10, Vault и любой совместимый плагин экономики.
-2. Удалите старый `TurnoEvents-1.0.0.jar`, положите `TurnoEvents-1.0.1.jar` в `plugins/` и полностью перезапустите сервер.
+2. Удалите старый JAR TurnoEvents, положите `TurnoEvents-1.1.0.jar` в `plugins/` и полностью перезапустите сервер.
 3. Для интерфейса справа установите PlaceholderAPI и TAB. ExecutableItems нужен только для особых предметов.
 4. Один раз запустите сервер. Настройки появятся в `plugins/TurnoEvents/`.
 5. Блок из `tab-scoreboard.yml` объедините с уже существующим разделом `scoreboard:` файла `plugins/TAB/config.yml`. Не создавайте второй раздел `scoreboard:`.
@@ -40,6 +40,10 @@
 - `/te stop` — отменить без наград;
 - `/te addpoints <игрок|UUID> <число>`;
 - `/te setpoints <игрок|UUID> <число>`;
+- `/te place <игрок|UUID> <место>` — вручную назначить итоговое место;
+- `/te disqualify <игрок|UUID>` — аннулировать результат и будущую награду;
+- `/te reinstate <игрок|UUID>` — вернуть аннулированного игрока;
+- `/te placements reset` — вернуть сортировку по очкам и снять все аннулирования;
 - `/te join <игрок|UUID>` и `/te leave <игрок|UUID>`;
 - `/te reward <игрок|UUID> <деньги> [executable-item|-]`;
 - `/te create <id> <тип> <минуты>` и `/te delete <id>`;
@@ -54,7 +58,13 @@
 /lp group admin permission set turnoevents.admin true
 ```
 
-Можно выдать отдельные права: `turnoevents.admin.start`, `.stop`, `.time`, `.points`, `.players`, `.reward`, `.templates`, `.schedule`, `.reload`.
+Можно выдать отдельные права: `turnoevents.admin.start`, `.stop`, `.time`, `.points`, `.placements`, `.players`, `.reward`, `.templates`, `.schedule`, `.reload`.
+
+## Ручное управление местами
+
+Откройте `/te admin` и нажмите «Управление местами». Выберите участника, затем нужное место. При перестановке остальные игроки автоматически сдвигаются. Кнопка «Аннулировать место» исключает игрока из итоговой таблицы и выдачи наград, но его можно восстановить до завершения ивента. Кнопка с ведром молока сбрасывает все ручные правки. Все изменения сохраняются после перезапуска.
+
+Редактировать места можно только до `/te finish`. Это защищает Vault и ExecutableItems от повторной или противоречивой выдачи уже начисленных призов.
 
 ## PlaceholderAPI / TAB
 

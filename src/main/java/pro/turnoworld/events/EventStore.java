@@ -107,6 +107,8 @@ public final class EventStore {
         List<String> scores = new ArrayList<>();
         for (UUID uuid : session.participants()) scores.add(uuid + ":" + session.points(uuid));
         p.setProperty("scores", String.join(",", scores));
+        p.setProperty("manualOrder", session.manualOrder().stream().map(UUID::toString).reduce((a, b) -> a + "," + b).orElse(""));
+        p.setProperty("disqualified", session.disqualifiedParticipants().stream().map(UUID::toString).reduce((a, b) -> a + "," + b).orElse(""));
         try (BufferedWriter writer = Files.newBufferedWriter(active, StandardCharsets.UTF_8)) {
             p.store(writer, "TurnoEvents active event");
         }
@@ -128,8 +130,18 @@ public final class EventStore {
                 int delimiter = value.lastIndexOf(':');
                 session.setPoints(UUID.fromString(value.substring(0, delimiter)), Long.parseLong(value.substring(delimiter + 1)));
             }
+            session.restoreAdjustments(uuids(p.getProperty("manualOrder", "")), uuids(p.getProperty("disqualified", "")));
             return session;
         } catch (Exception ignored) { return null; }
+    }
+
+    private List<UUID> uuids(String value) {
+        List<UUID> result = new ArrayList<>();
+        for (String part : value.split(",")) {
+            if (part.isBlank()) continue;
+            try { result.add(UUID.fromString(part.trim())); } catch (IllegalArgumentException ignored) { }
+        }
+        return result;
     }
 
     public synchronized void clearActive() throws IOException { Files.deleteIfExists(active); }
