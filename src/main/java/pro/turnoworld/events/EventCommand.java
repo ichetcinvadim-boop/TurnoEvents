@@ -12,12 +12,22 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.logging.Level;
 
 public final class EventCommand implements CommandExecutor, TabCompleter {
     private final TurnoEvents plugin;
     public EventCommand(TurnoEvents plugin) { this.plugin = plugin; }
 
     @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        try { return execute(sender, command, label, args); }
+        catch (Throwable error) {
+            plugin.getLogger().log(Level.SEVERE, "Ошибка команды /" + label + " " + String.join(" ", args), error);
+            sender.sendMessage(plugin.color(plugin.prefix() + "&cОшибка команды записана в консоль. Сообщите администратору код: &f" + error.getClass().getSimpleName()));
+            return true;
+        }
+    }
+
+    private boolean execute(CommandSender sender, Command command, String label, String[] args) {
         if (command.getName().equalsIgnoreCase("events")) return playerCommand(sender, args);
         if (args.length == 0) { help(sender); return true; }
         String sub = args[0].toLowerCase(Locale.ROOT);

@@ -111,10 +111,11 @@ public final class TestRunner {
     }
 
     private static void resourceTests() throws Exception {
-        String events = Files.readString(Path.of("TurnoEvents/src/main/resources/events.yml"));
-        String plugin = Files.readString(Path.of("TurnoEvents/src/main/resources/plugin.yml"));
-        String tab = Files.readString(Path.of("TurnoEvents/src/main/resources/tab-scoreboard.yml"));
-        String config = Files.readString(Path.of("TurnoEvents/src/main/resources/config.yml"));
+        Path root = Files.isDirectory(Path.of("TurnoEvents", "src")) ? Path.of("TurnoEvents") : Path.of(".");
+        String events = Files.readString(root.resolve("src/main/resources/events.yml"));
+        String plugin = Files.readString(root.resolve("src/main/resources/plugin.yml"));
+        String tab = Files.readString(root.resolve("src/main/resources/tab-scoreboard.yml"));
+        String config = Files.readString(root.resolve("src/main/resources/config.yml"));
         for (String id : List.of("miner", "builder", "hunter", "fisher", "marathon", "quiz")) check(events.contains("  " + id + ":"), "ресурс шаблона " + id);
         for (EventType type : EventType.values()) check(events.contains("type: " + type.name()), "ресурс типа " + type);
         for (String key : List.of("Vault", "PlaceholderAPI", "ExecutableItems", "TAB", "floodgate")) check(plugin.contains(key), "интеграция " + key);
