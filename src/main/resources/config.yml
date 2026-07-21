@@ -1,0 +1,28 @@
+language: ru
+timezone: Europe/Moscow
+autosave-seconds: 30
+auto-join: false
+results-display-seconds: 30
+
+schedule:
+  enabled: true
+  interval-minutes: 180
+  first-event-delay-minutes: 30
+  announcement-seconds: 60
+
+anti-exploit:
+  ignore-creative: true
+  unique-builder-locations: true
+  ignore-spawner-and-egg-mobs: true
+  ignore-flying-gliding-vehicles: true
+
+executable-items:
+  give-command: "ei give %player% %item% 1"
+
+gui:
+  title: "&0Ивенты TurnoWorld"
+  admin-title: "&0Управление ивентами"
+  filler: BLACK_STAINED_GLASS_PANE
+
+messages:
+  prefix: "&6&lИвенты &8» &f"

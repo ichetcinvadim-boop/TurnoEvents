@@ -1,0 +1,39 @@
+name: TurnoEvents
+version: 1.0.0
+main: pro.turnoworld.events.TurnoEvents
+api-version: '1.21'
+author: TurnoWorld
+description: Автоматические и ручные серверные ивенты TurnoWorld
+depend: [Vault]
+softdepend: [PlaceholderAPI, ExecutableItems, TAB, floodgate]
+commands:
+  events:
+    description: Открыть меню ивентов
+    aliases: [event, ивенты]
+    permission: turnoevents.use
+  turnoevents:
+    description: Управление TurnoEvents
+    aliases: [te]
+permissions:
+  turnoevents.use: {default: true}
+  turnoevents.admin:
+    default: op
+    children:
+      turnoevents.admin.start: true
+      turnoevents.admin.stop: true
+      turnoevents.admin.time: true
+      turnoevents.admin.points: true
+      turnoevents.admin.players: true
+      turnoevents.admin.reward: true
+      turnoevents.admin.templates: true
+      turnoevents.admin.schedule: true
+      turnoevents.admin.reload: true
+  turnoevents.admin.start: {default: op}
+  turnoevents.admin.stop: {default: op}
+  turnoevents.admin.time: {default: op}
+  turnoevents.admin.points: {default: op}
+  turnoevents.admin.players: {default: op}
+  turnoevents.admin.reward: {default: op}
+  turnoevents.admin.templates: {default: op}
+  turnoevents.admin.schedule: {default: op}
+  turnoevents.admin.reload: {default: op}

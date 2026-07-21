@@ -1,0 +1,82 @@
+events:
+  miner:
+    enabled: true
+    type: MINER
+    name: "Шахтёрская лихорадка"
+    duration-seconds: 900
+    goal: 500
+    worlds: [world, survival2]
+    points: {COAL_ORE: 1, DEEPSLATE_COAL_ORE: 1, COPPER_ORE: 1, DEEPSLATE_COPPER_ORE: 1, IRON_ORE: 2, DEEPSLATE_IRON_ORE: 2, GOLD_ORE: 4, DEEPSLATE_GOLD_ORE: 4, REDSTONE_ORE: 3, DEEPSLATE_REDSTONE_ORE: 3, LAPIS_ORE: 4, DEEPSLATE_LAPIS_ORE: 4, DIAMOND_ORE: 15, DEEPSLATE_DIAMOND_ORE: 15, EMERALD_ORE: 20, DEEPSLATE_EMERALD_ORE: 20, ANCIENT_DEBRIS: 30}
+    rewards:
+      1: {money: 50000, item: "02_kirka_shahtyora"}
+      2: {money: 30000, item: ""}
+      3: {money: 15000, item: ""}
+  builder:
+    enabled: true
+    type: BUILDER
+    name: "Строительный бум"
+    duration-seconds: 900
+    goal: 800
+    worlds: [world, survival2]
+    points: {ANY: 1}
+    rewards:
+      1: {money: 45000, item: "kub_rosta_single"}
+      2: {money: 25000, item: ""}
+      3: {money: 12000, item: ""}
+  hunter:
+    enabled: true
+    type: HUNTER
+    name: "Большая охота"
+    duration-seconds: 900
+    goal: 250
+    worlds: [world, survival2, world_nether, world_the_end]
+    points: {ZOMBIE: 1, SKELETON: 1, SPIDER: 1, CREEPER: 2, ENDERMAN: 3, BLAZE: 4, WITHER_SKELETON: 5, GUARDIAN: 5, ELDER_GUARDIAN: 25, WARDEN: 50, ANY: 1}
+    rewards:
+      1: {money: 50000, item: "01_frostmourn"}
+      2: {money: 30000, item: ""}
+      3: {money: 15000, item: ""}
+  fisher:
+    enabled: true
+    type: FISHER
+    name: "Рыболовный турнир"
+    duration-seconds: 900
+    goal: 100
+    worlds: [world, survival2]
+    points: {COD: 1, SALMON: 2, PUFFERFISH: 4, TROPICAL_FISH: 5, ANY: 1}
+    rewards:
+      1: {money: 40000, item: "heart_of_abyss"}
+      2: {money: 22000, item: ""}
+      3: {money: 10000, item: ""}
+  marathon:
+    enabled: true
+    type: MARATHON
+    name: "Марафон TurnoWorld"
+    duration-seconds: 900
+    goal: 10000
+    worlds: [world, survival2]
+    points: {ANY: 1}
+    rewards:
+      1: {money: 45000, item: "08_pulse_boots"}
+      2: {money: 25000, item: ""}
+      3: {money: 12000, item: ""}
+  quiz:
+    enabled: true
+    type: QUIZ
+    name: "Быстрая викторина"
+    duration-seconds: 600
+    goal: 100
+    worlds: [world, survival2]
+    points: {ANY: 10}
+    rewards:
+      1: {money: 35000, item: ""}
+      2: {money: 20000, item: ""}
+      3: {money: 10000, item: ""}
+
+quiz:
+  question-delay-seconds: 12
+  questions:
+    q1: {text: "Сколько блоков в одном стака?", answers: ["64", "шестьдесят четыре"], points: 10}
+    q2: {text: "Как называется измерение с драконом?", answers: ["энд", "край", "end"], points: 10}
+    q3: {text: "Какая руда нужна для создания компаса?", answers: ["редстоун", "красная пыль", "redstone"], points: 10}
+    q4: {text: "Сколько обсидиана минимум нужно для портала в Незер?", answers: ["10", "десять"], points: 10}
+    q5: {text: "Какой моб боится кошек?", answers: ["крипер", "creeper"], points: 10}

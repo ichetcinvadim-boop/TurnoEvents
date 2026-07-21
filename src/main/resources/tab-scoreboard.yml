@@ -1,0 +1,40 @@
+# Этот блок нужно ОБЪЕДИНИТЬ с scoreboard в plugins/TAB/config.yml.
+# Не создавайте второй раздел scoreboard, если он уже существует.
+scoreboard:
+  enabled: true
+  toggle-command: /sb
+  remember-toggle-choice: true
+  hidden-by-default: false
+  delay-on-join-milliseconds: 3000
+  use-numbers: false
+  static-number: 0
+  scoreboards:
+    turno-event-player:
+      display-condition: "%turnoevents_active%=true;%turnoevents_joined%=true"
+      title: "&6&lTURNOEVENTS"
+      lines:
+        - "&e%turnoevents_name%"
+        - "&7Осталось:||&f%turnoevents_time%"
+        - ""
+        - "&7%turnoevents_score_label%:||&e%turnoevents_your_points%"
+        - "&7Твоё место:||&f#%turnoevents_your_place%"
+        - "&7Цель:||&f%turnoevents_goal%"
+        - ""
+        - "&61. &f%turnoevents_leader_1%||&e%turnoevents_leader_1_points%"
+        - "&72. &f%turnoevents_leader_2%||&e%turnoevents_leader_2_points%"
+        - "&63. &f%turnoevents_leader_3%||&e%turnoevents_leader_3_points%"
+        - ""
+        - "&7Участников:||&f%turnoevents_participants%"
+    turno-event-spectator:
+      display-condition: "%turnoevents_active%=true"
+      title: "&6&lTURNOEVENTS"
+      lines:
+        - "&e%turnoevents_name%"
+        - "&7Осталось:||&f%turnoevents_time%"
+        - ""
+        - "&61. &f%turnoevents_leader_1%||&e%turnoevents_leader_1_points%"
+        - "&72. &f%turnoevents_leader_2%||&e%turnoevents_leader_2_points%"
+        - "&63. &f%turnoevents_leader_3%||&e%turnoevents_leader_3_points%"
+        - ""
+        - "&7Участников:||&f%turnoevents_participants%"
+        - "&e/events &7— участвовать"
